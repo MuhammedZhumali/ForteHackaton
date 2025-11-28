@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Forte Fraud Shield Dashboard</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+<div class="app">
+    <header class="app-header">
+        <div class="logo">
+            <span class="logo-mark">F</span>
+            <span class="logo-text">Forte Fraud Shield</span>
+        </div>
+        <div class="header-status">
+            <span id="health-status-indicator" class="status-dot status-dot--unknown"></span>
+            <span id="health-status-text">Проверка статуса...</span>
+        </div>
+    </header>
+
+    <nav class="tabs">
+        <button class="tab-button active" data-tab="tab-predict">Онлайн скоринг</button>
+        <button class="tab-button" data-tab="tab-transactions">Транзакции</button>
+        <button class="tab-button" data-tab="tab-analytics">Аналитика</button>
+    </nav>
+
+    <main class="tab-container">
+
+        <section id="tab-predict" class="tab-panel active">
+            <div class="panel-header">
+                <h2>Онлайн скоринг транзакции</h2>
+                <p>Отправь параметры транзакции на /api/v1/fraud/predict и получи оценку риска, вероятность мошенничества и объяснения модели.</p>
+            </div>
+
+            <div class="grid grid--2">
+                <form id="predict-form" class="card card--form">
+                    <h3>Параметры транзакции</h3>
+
+                    <div class="form-group">
+                        <label for="amount">Сумма транзакции, ₸ <span class="required">*</span></label>
+                        <input type="number" step="0.01" id="amount" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="client_id">ID клиента (опционально)</label>
+                        <input type="text" id="client_id" placeholder="Например, 12345">
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="os_ver_count_30d">Смены версии ОС за 30 дней (os_ver_count_30d) <span class="required">*</span></label>
+                            <input type="number" step="0.01" id="os_ver_count_30d" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="phone_model_count_30d">Количество устройств за 30 дней (phone_model_count_30d) <span class="required">*</span></label>
+                            <input type="number" step="0.01" id="phone_model_count_30d" required>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="logins_7d">Входы в интернет-банк за 7 дней (logins_7d) <span class="required">*</span></label>
+                            <input type="number" step="0.01" id="logins_7d" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="logins_30d">Входы в интернет-банк за 30 дней (logins_30d) <span class="required">*</span></label>
+                            <input type="number" step="0.01" id="logins_30d" required>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="logins_per_day_7">Среднее число входов в день за 7 дней (logins_per_day_7)</label>
+                            <input type="number" step="0.0001" id="logins_per_day_7" value="0">
+                        </div>
+                        <div class="form-group">
+                            <label for="logins_per_day_30">Среднее число входов в день за 30 дней (logins_per_day_30)</label>
+                            <input type="number" step="0.0001" id="logins_per_day_30" value="0">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="rel_change_7_vs_30">Изменение активности 7 дн. к 30 дн. (rel_change_7_vs_30)</label>
+                            <input type="number" step="0.01" id="rel_change_7_vs_30" value="0">
+                        </div>
+                        <div class="form-group">
+                            <label for="share_7_of_30">Доля входов за 7 дней от 30 (share_7_of_30)</label>
+                            <input type="number" step="0.0001" id="share_7_of_30" value="0">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="mean_interval_30d">Средний интервал между сессиями за 30 дней, сек (mean_interval_30d)</label>
+                            <input type="number" step="1" id="mean_interval_30d" value="0">
+                        </div>
+                        <div class="form-group">
+                            <label for="std_interval_30d">Стандартное отклонение интервалов (std_interval_30d)</label>
+                            <input type="number" step="1" id="std_interval_30d" value="0">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="var_interval_30d">Дисперсия интервалов (var_interval_30d)</label>
+                            <input type="number" step="1" id="var_interval_30d" value="0">
+                        </div>
+                        <div class="form-group">
+                            <label for="ewm_interval_7d">Недавние интервалы (EWMA, 7 дней) (ewm_interval_7d)</label>
+                            <input type="number" step="1" id="ewm_interval_7d" value="0">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="burstiness">Нестабильность паттерна входов (burstiness)</label>
+                            <input type="number" step="0.01" id="burstiness" value="0">
+                        </div>
+                        <div class="form-group">
+                            <label for="fano_factor">Fano-фактор интервалов (fano_factor)</label>
+                            <input type="number" step="1" id="fano_factor" value="0">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="z_score_7_vs_30d">Отклонение поведения от нормы (z_score_7d_vs_30d)</label>
+                        <input type="number" step="0.01" id="z_score_7_vs_30d" value="0">
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary" id="predict-submit">
+                            Запустить скоринг
+                        </button>
+                        <span id="predict-loading" class="loading-text hidden">Считаем...</span>
+                    </div>
+                </form>
+
+                <div class="card" id="predict-result-card">
+                    <h3>Результат скоринга</h3>
+                    <div id="predict-result-empty">
+                        <p class="muted">Пока ничего нет. Отправь форму слева 👈</p>
+                    </div>
+                    <div id="predict-result" class="hidden">
+                        <div class="result-main">
+                            <div>
+                                <p class="label">ID транзакции</p>
+                                <p class="value" id="result-transaction-id"></p>
+                            </div>
+                            <div>
+                                <p class="label">Уровень риска</p>
+                                <p class="chip" id="result-risk-level"></p>
+                            </div>
+                        </div>
+
+                        <div class="result-grid">
+                            <div class="stat">
+                                <p class="stat-label">Вероятность мошенничества</p>
+                                <p class="stat-value" id="result-fraud-proba"></p>
+                                <div class="progress">
+                                    <div id="result-fraud-bar" class="progress-bar"></div>
+                                </div>
+                            </div>
+                            <div class="stat">
+                                <p class="stat-label">Мошенническая транзакция</p>
+                                <p class="stat-value" id="result-is-fraud"></p>
+                            </div>
+                        </div>
+
+                        <div class="result-section">
+                            <p class="label">Причины решения модели</p>
+                            <ul id="result-reasons" class="reasons-list"></ul>
+                        </div>
+
+                        <div class="result-meta">
+                            <span>Модель: <strong id="result-model-version"></strong></span>
+                            <span>Время: <strong id="result-timestamp"></strong></span>
+                        </div>
+                    </div>
+
+                    <div id="predict-error" class="error-box hidden"></div>
+                </div>
+            </div>
+
+            <div class="panel-header" style="margin-top: 32px;">
+                <h2>Симуляция транзакций (батч)</h2>
+                <p>Сгенерируй тестовый набор транзакций через /api/v1/simulation/generate для демо и нагрузочного тестирования.</p>
+            </div>
+
+            <div class="grid grid--2">
+                <div class="card">
+                    <h3>Генерация батча</h3>
+                    <form id="simulate-generate-form">
+                        <div class="form-group">
+                            <label for="sim-count">Количество транзакций (1–500)</label>
+                            <input type="number" id="sim-count" value="50" min="1" max="500" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="sim-type">Тип сценария (transaction_type)</label>
+                            <select id="sim-type">
+                                <option value="mixed">Смешанные (mixed)</option>
+                                <option value="normal">Нормальные (normal)</option>
+                                <option value="suspicious">Подозрительные (suspicious)</option>
+                                <option value="fraud">Мошеннические (fraud)</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="sim-fraud-ratio">Доля мошенничества (fraud_ratio, 0–1, только для mixed)</label>
+                            <input type="number" id="sim-fraud-ratio" value="0.15" min="0" max="1" step="0.01">
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary" id="btn-sim-generate">
+                                Сгенерировать
+                            </button>
+                            <span id="sim-generate-loading" class="loading-text hidden">Генерация...</span>
+                        </div>
+                    </form>
+
+                    <div id="sim-generate-result" class="sim-result hidden">
+                        <p><strong>Всего транзакций:</strong> <span id="sim-total"></span></p>
+                        <p><strong>Мошеннических:</strong> <span id="sim-fraud-count"></span></p>
+                        <p><strong>Доля мошенничества:</strong> <span id="sim-fraud-rate"></span></p>
+                        <p><strong>Время генерации:</strong> <span id="sim-generated-at"></span></p>
+                    </div>
+
+                    <div id="sim-generate-error" class="error-box hidden"></div>
+                </div>
+
+                <div class="card">
+                    <h3>Последние сгенерированные транзакции</h3>
+                    <div class="table-wrapper">
+                        <table class="table table--compact">
+                            <thead>
+                            <tr>
+                                <th>Тип по оценке</th>
+                                <th>Сумма</th>
+                                <th>Вероятность</th>
+                                <th>Мошенничество</th>
+                            </tr>
+                            </thead>
+                            <tbody id="sim-transactions-tbody">
+                            <tr><td colspan="4" class="muted">Сгенерируй батч, чтобы увидеть примеры.</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="tab-transactions" class="tab-panel">
+            <div class="panel-header">
+                <h2>Транзакции</h2>
+                <p>Просмотр сохранённых в БД транзакций из /api/v1/transactions.</p>
+            </div>
+
+            <div class="card">
+                <form id="transactions-filter" class="filter-row">
+                    <div class="form-group">
+                        <label for="filter-days">Период для summary (в днях)</label>
+                        <input type="number" id="filter-days" value="7" min="1" max="365">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="filter-risk">Уровень риска</label>
+                        <select id="filter-risk">
+                            <option value="">Все</option>
+                            <option value="LOW">LOW</option>
+                            <option value="MEDIUM">MEDIUM</option>
+                            <option value="HIGH">HIGH</option>
+                            <option value="CRITICAL">CRITICAL</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="filter-is-fraud">Тип транзакций</label>
+                        <select id="filter-is-fraud">
+                            <option value="">Все</option>
+                            <option value="true">Только мошеннические</option>
+                            <option value="false">Только не мошеннические</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="filter-limit">Лимит записей</label>
+                        <input type="number" id="filter-limit" value="50" min="1" max="1000">
+                    </div>
+
+                    <div class="form-actions form-actions--inline">
+                        <button type="button" class="btn btn-primary" id="btn-load-transactions">
+                            Обновить список
+                        </button>
+                        <button type="button" class="btn btn-secondary" id="btn-load-summary">
+                            Summary
+                        </button>
+                    </div>
+                </form>
+
+                <div id="transactions-summary" class="summary-row hidden"></div>
+
+                <div class="table-wrapper">
+                    <table class="table" id="transactions-table">
+                        <thead>
+                        <tr>
+                            <th>Время</th>
+                            <th>ID транзакции</th>
+                            <th>ID клиента</th>
+                            <th>Сумма</th>
+                            <th>Вероятность мошенничества</th>
+                            <th>Уровень риска</th>
+                            <th>Мошенничество?</th>
+                        </tr>
+                        </thead>
+                        <tbody id="transactions-tbody">
+                        <tr>
+                            <td colspan="7" class="muted">Данные появятся автоматически или после нажатия «Обновить список».</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div id="transactions-error" class="error-box hidden"></div>
+            </div>
+        </section>
+
+        <section id="tab-analytics" class="tab-panel">
+            <div class="panel-header">
+                <h2>Аналитика</h2>
+                <p>Ключевые метрики и аналитика модели из /api/v1/analytics/*.</p>
+            </div>
+
+            <div class="grid grid--2">
+                <div class="card">
+                    <div class="card-header-row">
+                        <h3>Дашборд по транзакциям</h3>
+                        <div class="form-inline">
+                            <label for="analytics-days">Период (дней)</label>
+                            <input type="number" id="analytics-days" value="7" min="1" max="365">
+                            <button class="btn btn-primary" id="btn-load-dashboard">Обновить</button>
+                        </div>
+                    </div>
+                    <div id="dashboard-content" class="dashboard-grid">
+                        <p class="muted">Метрики загрузятся автоматически или после нажатия «Обновить».</p>
+                    </div>
+                    <div id="dashboard-error" class="error-box hidden"></div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header-row">
+                        <h3>Топ паттернов риска</h3>
+                        <button class="btn btn-secondary" id="btn-load-risk-patterns">Обновить</button>
+                    </div>
+                    <ul id="risk-patterns-list" class="patterns-list">
+                        <li class="muted">Паттерны будут загружены автоматически или по кнопке.</li>
+                    </ul>
+                    <div id="risk-patterns-error" class="error-box hidden"></div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header-row">
+                    <h3>Важность признаков модели</h3>
+                    <button class="btn btn-secondary" id="btn-load-feature-importance">Обновить</button>
+                </div>
+                <div class="table-wrapper">
+                    <table class="table table--compact">
+                        <thead>
+                        <tr>
+                            <th>Признак</th>
+                            <th>Важность</th>
+                        </tr>
+                        </thead>
+                        <tbody id="feature-importance-tbody">
+                        <tr><td colspan="2" class="muted">Данные загрузятся автоматически или после нажатия «Обновить».</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div id="feature-importance-error" class="error-box hidden"></div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="app-footer">
+        <span>Forte Fraud Shield API</span>
+        <span id="footer-version">v1.0.0</span>
+    </footer>
+</div>
+
+<script src="js/app.js"></script>
+</body>
+</html>
