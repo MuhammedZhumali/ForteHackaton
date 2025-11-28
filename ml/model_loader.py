@@ -31,7 +31,6 @@ class ModelLoader:
         model_files = {
             "GradientBoosting": "GradientBoosting_fraud_model.pkl",
             "XGBoost": "XGBoost_fraud_model.pkl",
-            "LightGBM": "LightGBM_fraud_model.pkl",
             "RandomForest": "RandomForest_fraud_model.pkl",
             "LogisticRegression": "LogisticRegression_fraud_model.pkl"
         }
