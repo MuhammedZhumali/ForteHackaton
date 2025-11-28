@@ -1,0 +1,14 @@
+services:
+  api:
+    build: .
+    container_name: forte-fraud-api
+    ports:
+      - "8080:8000"
+    environment:
+      DATABASE_URL: "sqlite:///./forte_fraud.db"
+      ML_MODEL_PATH: "trained_model"
+    volumes:
+      - ./forte_fraud.db:/app/forte_fraud.db
+      - ./trained_model:/app/trained_model
+      - ./data:/app/data
+    restart: unless-stopped
