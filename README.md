@@ -338,3 +338,5 @@ Nurkhat S., Arsen G., Mukhammed Z
 - FastAPI документация: https://fastapi.tiangolo.com/
 - SQLAlchemy документация: https://docs.sqlalchemy.org/
 - Scikit-learn документация: https://scikit-learn.org/
+
+# ^^ 
