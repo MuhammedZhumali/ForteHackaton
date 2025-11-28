@@ -1,4 +1,4 @@
-# Forte Fraud Shield API
+# Forte Fraud Shield ML
 
 Система детекции мошеннических транзакций для ForteBank на основе машинного обучения.
 
